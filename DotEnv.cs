@@ -1,30 +1,30 @@
-namespace Producer;
-
-internal class DotEnv
+namespace Producer
 {
-    public static void Load(string filePath)
+    internal class DotEnv
     {
-        if (!File.Exists(filePath))
-            return;
-
-        foreach (var line in File.ReadAllLines(filePath))
+        public static void Load(string filePath)
         {
-            var parts = line.Split(
-                '=',
-                StringSplitOptions.RemoveEmptyEntries);
+            if (!File.Exists(filePath))
+                return;
 
-            if (parts.Length != 2)
-                continue;
+            foreach (var line in File.ReadAllLines(filePath))
+            {
+                var parts = line.Split(
+                    '=',
+                    StringSplitOptions.RemoveEmptyEntries);
 
-            Environment.SetEnvironmentVariable(parts[0], parts[1]);
+                if (parts.Length != 2)
+                    continue;
+
+                Environment.SetEnvironmentVariable(parts[0], parts[1]);
+            }
+        }
+
+        public static string GetEnv(string key)
+        {
+            string value = Environment.GetEnvironmentVariable(key) ?? "";
+
+            return value;
         }
     }
-
-    public static string GetEnv(string key)
-    {
-        string value = Environment.GetEnvironmentVariable(key) ?? "";
-
-        return value;
-    }
-
 }

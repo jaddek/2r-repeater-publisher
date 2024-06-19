@@ -1,6 +1,8 @@
-namespace Producer;
-
-public interface IProducer
+namespace Producer
 {
-    public Task<long> Publish(string message);
+
+    public interface IProducer
+    {
+        public Task<long> Publish(string message);
+    }
 }
