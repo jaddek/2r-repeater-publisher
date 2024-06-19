@@ -10,11 +10,11 @@ namespace Producer
         }
     }
 
-    class ConsumerCommand : IStrategy
+    class ConsumerCommand(SimpleProducer producer) : IStrategy
     {
         async public Task<dynamic> Run()
         {
-            await Task.Delay(1);
+            await producer.Publish("hello");
 
             return "Consumer command started";
         }
