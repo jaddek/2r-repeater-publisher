@@ -1,6 +1,5 @@
 namespace Producer
 {
-
     internal class DotEnv
     {
         public static void Load(string filePath)
