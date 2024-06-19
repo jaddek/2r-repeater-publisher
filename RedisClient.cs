@@ -1,14 +1,16 @@
 
 using StackExchange.Redis;
 
-namespace Producer;
-
-public class RedisClient(string DSN)
+namespace Producer
 {
-    private readonly ConnectionMultiplexer _connection = ConnectionMultiplexer.Connect(DSN);
 
-    public ISubscriber GetSubscriber()
+    public class RedisClient(string DSN)
     {
-        return _connection.GetSubscriber();
+        private readonly ConnectionMultiplexer _connection = ConnectionMultiplexer.Connect(DSN);
+
+        public ISubscriber GetSubscriber()
+        {
+            return _connection.GetSubscriber();
+        }
     }
 }
