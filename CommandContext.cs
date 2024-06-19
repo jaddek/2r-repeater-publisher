@@ -1,35 +1,39 @@
 namespace Producer
 {
-    internal class CommandContext(IStrategy Command)
+    internal class CommandContext(IStrategy strategy)
     {
-        private IStrategy _strategy { set; get; }
+        private IStrategy Strategy { set; get; } = strategy;
 
-        public dynamic RunCommand()
+        async public Task<dynamic> RunCommand()
         {
-            return _strategy.Run();
+            return await Strategy.Run();
         }
     }
 
     class ConsumerCommand : IStrategy
     {
-        public dynamic Run()
+        async public Task<dynamic> Run()
         {
-            Console.WriteLine("Yo");
-            return "asdasd";
+            await Task.Delay(1);
+
+            return "Consumer command started";
         }
     }
 
     class ProducerCommand : IStrategy
     {
-        public dynamic Run()
+        async public Task<dynamic> Run()
         {
-            Console.WriteLine("Yo");
-            return "asdasd";
+            await Task.Delay(1);
+
+            return "Producer command started";
         }
+
+
     }
 
     public interface IStrategy
     {
-        dynamic Run();
+        abstract public Task<dynamic> Run();
     }
 }
