@@ -1,16 +1,29 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Producer
 {
-    internal class CommandContext(IStrategy strategy)
-    {
-        private IStrategy Strategy { set; get; } = strategy;
 
-        async public Task<dynamic> RunCommand()
+    internal class CommandsContainer()
+    {
+        private readonly Dictionary<string, Type> _commands = [];
+
+        public void registerCommand(string key, Type command)
         {
-            return await Strategy.Run();
+            _commands[key] = command;
+        }
+
+        public Type GetRequiredCommandType(string command)
+        {
+            if (_commands.Keys.ToList().Contains(command) == false)
+            {
+                throw new Exception(String.Format("Command '{0}' not registered", command));
+            }
+
+            return _commands[command];
         }
     }
 
-    class ConsumerCommand(SimpleProducer producer) : IStrategy
+    internal class ConsumerCommand(SimpleProducer producer) : IStrategy
     {
         async public Task<dynamic> Run()
         {
@@ -20,7 +33,7 @@ namespace Producer
         }
     }
 
-    class ProducerCommand : IStrategy
+    internal class ProducerCommand : IStrategy
     {
         async public Task<dynamic> Run()
         {
