@@ -5,6 +5,12 @@ namespace Producer
 {
     public class Program
     {
+        public readonly struct InputArguments(string command, string message)
+        {
+            public readonly string Command = command;
+            public readonly string Message = message;
+        }
+
         public class Options
         {
             [Option('m', "message", Required = false, HelpText = "Message.")]
@@ -12,6 +18,7 @@ namespace Producer
             [Option('c', "command", Required = true, HelpText = "Command.", Default = "Consumer")]
             public required string Command { get; set; }
         }
+
         static ServiceProvider InitContainer()
         {
             ServiceCollection services = new();
@@ -24,37 +31,52 @@ namespace Producer
             return provider;
         }
 
+        private static CommandsContainer InitCommandsContainer()
+        {
+            CommandsContainer CommandsContainer = new();
+            CommandsContainer.registerCommand("producer", typeof(ProducerCommand));
+            CommandsContainer.registerCommand("consumer", typeof(ConsumerCommand));
+
+            return CommandsContainer;
+        }
+
+        private static InputArguments InitParsedOptions(string[] args)
+        {
+            string Message = "";
+            string Command = "";
+            ParserResult<Options> options = Parser.Default.ParseArguments<Options>(args)
+               .WithParsed(options =>
+               {
+                   Message = options.Message;
+                   Command = options.Command;
+               });
+
+            return new InputArguments(Command, Message);
+        }
+
         static async Task Main(string[] args)
         {
             DotEnv.Load(".env");
-            string message = "";
-            string command = "";
-            ParserResult<Options> options = Parser.Default.ParseArguments<Options>(args)
-                       .WithParsed(options =>
-                       {
-                           message = options.Message;
-                           command = options.Command;
-                       });
+            // Init input arguments
+            InputArguments InputArguments = InitParsedOptions(args);
+            // Init DI container
+            using ServiceProvider Provider = InitContainer();
+            // Init Available commands
+            CommandsContainer CommandContainer = InitCommandsContainer();
 
-            Dictionary<string, Type> commandMap = new()
+            try
             {
-                ["producer"] = typeof(ProducerCommand),
-                ["consumer"] = typeof(ConsumerCommand),
+                // Get instance in DI by Command Type
+                IStrategy CommandService = (IStrategy)Provider.GetRequiredService(
+                    CommandContainer.GetRequiredCommandType(InputArguments.Command)
+                );
 
-            };
-
-            if (commandMap.Keys.ToList().Contains(command) == false)
-            {
-                Console.Error.WriteLine("Command '{0}' not registered", command);
-                return;
+                Console.WriteLine(await CommandService.Run());
             }
-
-            using ServiceProvider provider = InitContainer();
-            IStrategy Command = (IStrategy)provider.GetRequiredService(commandMap[command]);
-            CommandContext CommandContext = new(Command);
-            var result = await CommandContext.RunCommand();
-
-            Console.WriteLine(result);
+            catch (Exception exception)
+            {
+                Console.Error.WriteLine(exception.Message);
+            }
         }
     }
 }
