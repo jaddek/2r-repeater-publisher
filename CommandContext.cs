@@ -7,7 +7,7 @@ namespace Producer
     {
         private readonly Dictionary<string, Type> _commands = [];
 
-        public void registerCommand(string key, Type command)
+        public void RegisterCommand(string key, Type command)
         {
             _commands[key] = command;
         }
@@ -41,8 +41,6 @@ namespace Producer
 
             return "Producer command started";
         }
-
-
     }
 
     public interface IStrategy
