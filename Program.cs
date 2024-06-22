@@ -34,8 +34,8 @@ namespace Producer
         private static CommandsContainer InitCommandsContainer()
         {
             CommandsContainer CommandsContainer = new();
-            CommandsContainer.registerCommand("producer", typeof(ProducerCommand));
-            CommandsContainer.registerCommand("consumer", typeof(ConsumerCommand));
+            CommandsContainer.RegisterCommand("producer", typeof(ProducerCommand));
+            CommandsContainer.RegisterCommand("consumer", typeof(ConsumerCommand));
 
             return CommandsContainer;
         }
