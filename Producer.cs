@@ -3,18 +3,30 @@ using StackExchange.Redis;
 
 namespace Producer
 {
-    public class SimpleProducer(RedisClient redisClient, string channel) : IProducer
+    public class SimpleProducer(RedisClient redisClient)
     {
-        public async Task<long> Publish(string message)
+        public void Publish(string channel, string message)
         {
-            return await redisClient
+            redisClient
             .GetSubscriber()
-            .PublishAsync(
+            .Publish(
                 channel,
                  JsonSerializer.Serialize(message),
                  CommandFlags.FireAndForget
                  );
+        }
 
+        public void Consume(string channel)
+        {
+            redisClient
+            .GetSubscriber()
+            .Subscribe(channel, (channel, type) =>
+            {
+                Console.WriteLine(type);
+            });
+
+            Console.WriteLine("Listening for messages. Press any key to exit.");
+            Console.ReadKey();
         }
     }
 }
