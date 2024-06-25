@@ -1,50 +1,23 @@
-using Microsoft.Extensions.DependencyInjection;
-
 namespace Producer
 {
-
-    internal class CommandsContainer()
+    internal class ProducerCommand(SimpleProducer producer) : ICommandRun
     {
-        private readonly Dictionary<string, Type> _commands = [];
-
-        public void RegisterCommand(string key, Type command)
+        public void Run(CLIOptions.InputArguments arguments)
         {
-            _commands[key] = command;
-        }
-
-        public Type GetRequiredCommandType(string command)
-        {
-            if (_commands.Keys.ToList().Contains(command) == false)
-            {
-                throw new Exception(String.Format("Command '{0}' not registered", command));
-            }
-
-            return _commands[command];
+            producer.Publish(arguments.Channel, arguments.Message);
         }
     }
 
-    internal class ConsumerCommand(SimpleProducer producer) : IStrategy
+    internal class ConsumerCommand(SimpleProducer producer) : ICommandRun
     {
-        async public Task<dynamic> Run()
+        public void Run(CLIOptions.InputArguments arguments)
         {
-            await producer.Publish("hello");
-
-            return "Consumer command started";
+            producer.Consume(arguments.Channel);
         }
     }
 
-    internal class ProducerCommand : IStrategy
+    public interface ICommandRun
     {
-        async public Task<dynamic> Run()
-        {
-            await Task.Delay(1);
-
-            return "Producer command started";
-        }
-    }
-
-    public interface IStrategy
-    {
-        abstract public Task<dynamic> Run();
+        public void Run(CLIOptions.InputArguments arguments);
     }
 }
