@@ -3,11 +3,11 @@ using StackExchange.Redis;
 
 namespace Producer
 {
-    public class SimpleProducer(RedisClient redisClient, string channel) : IProducer
+    public class SimpleProducer(RedisClient redisClient)
     {
-        public async Task<long> Publish(string message)
+        public void Publish(string channel, string message)
         {
-            return await redisClient
+            redisClient
             .GetSubscriber()
             .Publish(
                 new RedisChannel(channel, RedisChannel.PatternMode.Literal),
