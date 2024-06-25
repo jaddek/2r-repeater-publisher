@@ -10,7 +10,7 @@ namespace Producer
             redisClient
             .GetSubscriber()
             .Publish(
-                channel,
+                new RedisChannel(channel, RedisChannel.PatternMode.Literal),
                  JsonSerializer.Serialize(message),
                  CommandFlags.FireAndForget
                  );
@@ -20,7 +20,9 @@ namespace Producer
         {
             redisClient
             .GetSubscriber()
-            .Subscribe(channel, (channel, type) =>
+            .Subscribe(
+                new RedisChannel(channel, RedisChannel.PatternMode.Literal),
+                (channel, type) =>
             {
                 Console.WriteLine(type);
             });
